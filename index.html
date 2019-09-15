@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>SetsSeller client</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+    <div class="container" id="Import">
+        <p>Please put report.json here</p>
+        <input type="file" id="ImportFile" onchange="handleImport(this.files)">
+    </div>
+    <div class="d-none" id="TableContainer">
+        <div class="row">
+            <label for="SetCart" class="col-1">Set cart: </label>
+            <input type="number" id="SetCart" class="col-1 set">
+        </div>
+        <div class="row">
+            <label for="SetTarget" class="col-1">Set target: </label>
+            <input type="number" id="SetTarget" class="col-1 set">
+        </div>
+        <div class="row">
+            <button class="col-3" id="DownloadOrder" disabled>Download order</button>
+        </div>
+        <div class="row">
+            <p class="col-3">Total: <span id="Sets">0</span> sets</p>
+            <p class="col-3">Total TF2 price: <span id="TfPrice">0</span> keys</p>
+            <p class="col-3">Total CSGO price: <span id="CsPrice">0</span> keys</p>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Game Name</th>
+                    <th scope="col">AppID</th>
+                    <th scope="col">Available</th>
+                    <th scope="col">TF2 Rate</th>
+                    <th scope="col">CSGO Rate</th>
+                    <th scope="col">TF2 for all</th>
+                    <th scope="col">CSGO for all</th>
+                    <th scope="col">Cart(<span class="clear" id="ClearCart">X</span>)</th>
+                    <th scope="col">You have</th>
+                    <th scope="col">Target amount(<span class="clear" id="ClearTarget">X</span>)</th>
+                </tr>
+            </thead>
+            <tbody id="AppidsTable">
+
+            </tbody>
+        </table>
+    </div>
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/main.js"></script>
+</body>
+
+</html>
