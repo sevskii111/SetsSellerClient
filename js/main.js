@@ -1,8 +1,7 @@
-$(document).ready(function () {
-    $("#InputFile").on("input", function (e) {
+String.prototype.capitalize = function () {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
 
-    });
-});
 
 function handleImport(files) {
     var file = files[0];
@@ -36,13 +35,35 @@ function processFile(e) {
     for (var i = 0; i < mySetsKeys.length; i++) {
         if (mySets[mySetsKeys[i]].sets > 0) {
             $("#AppidsTable").append($(
-                `<tr><td>${mySets[mySetsKeys[i]].name}</td><td>${mySetsKeys[i]}</td><td>${mySets[mySetsKeys[i]].sets}</td><td>${rates.TF2}</td><td>${rates.CSGO}</td><td>${(mySets[mySetsKeys[i]].sets / rates.TF2).toFixed(2)}</td><td>${(mySets[mySetsKeys[i]].sets / rates.CSGO).toFixed(2)}</td><td><input type="number" class="cart" data-id="${mySetsKeys[i]}" placeholder="0" max="${mySets[mySetsKeys[i]].sets}" min="0"></td><td>${targetSets[mySetsKeys[i]] ? targetSets[mySetsKeys[i]].sets : 0}</td><td><input type="number" class="target" data-id="${mySetsKeys[i]}" placeholder="0" min="${targetSets[mySetsKeys[i]] ? targetSets[mySetsKeys[i]].sets : 0}" max="${mySets[mySetsKeys[i]].sets + (targetSets[mySetsKeys[i]] ? targetSets[mySetsKeys[i]].sets : 0)}"></td></tr>`
+                `<tr class='item'><td>${mySets[mySetsKeys[i]].name}</td><td>${mySetsKeys[i]}</td><td class="sets">${mySets[mySetsKeys[i]].sets}</td><td class='TFrate'>${mySets[mySetsKeys[i]].TFrate}</td><td class='CSrate'>${mySets[mySetsKeys[i]].CSrate}</td><td>${(mySets[mySetsKeys[i]].sets / mySets[mySetsKeys[i]].TFrate).toFixed(2)}</td><td>${(mySets[mySetsKeys[i]].sets / mySets[mySetsKeys[i]].CSrate).toFixed(2)}</td><td><input type="number" class="cart" data-id="${mySetsKeys[i]}" placeholder="0" max="${mySets[mySetsKeys[i]].sets}" min="0"></td><td>${targetSets[mySetsKeys[i]] ? targetSets[mySetsKeys[i]].sets : 0}</td><td><input type="number" class="target" data-id="${mySetsKeys[i]}" placeholder="0" min="${targetSets[mySetsKeys[i]] ? targetSets[mySetsKeys[i]].sets : 0}" max="${mySets[mySetsKeys[i]].sets + (targetSets[mySetsKeys[i]] ? targetSets[mySetsKeys[i]].sets : 0)}"></td></tr>`
             ));
         }
     }
 
+    $('.table').DataTable({
+        "paging": false,
+        "info": false,
+        "stateSave": false,
+        "searching": false,
+        "autoWidth": false,
+        "order": [
+            [2, "desc"]
+        ]
+    });
+
     $(".cart, .target").on("input", function (e) {
-        var $this = $(this);
+        setCart($(this));
+        calcPrice();
+    });
+
+    var ma = 0,
+        am = 0;
+
+    var maxTF = -1;
+    var maxCS = -1;
+
+    function setCart($el) {
+        var $this = $el;
         if ($this.hasClass("cart")) {
             $(".target").attr("disabled", true);
             type = "cart";
@@ -50,36 +71,61 @@ function processFile(e) {
             $(".cart").attr("disabled", true);
             type = "target";
         }
-        let val = e.target.value;
+        let val = $this.val();
         var max = $this.attr("max");
         var min = $this.attr("min");
         val = Math.min(max, val);
         val = Math.max(min, val);
-        $this.val(val);
-        $("#DownloadOrder").attr("disabled", false);
 
-        calcPrice();
-    });
+        var TFrate = Number($el.parent().parent().children('.TFrate').text());
+        var CSrate = Number($el.parent().parent().children('.CSrate').text());
+        if ((maxTF != "-1" && TFrate > maxTF) || (maxCS != "-1" && CSrate > maxCS)) {
+            $el.val(0);
+        } else {
+            console.log(val - $this.attr("min"));
+            if ($this.val() == val && val - $this.attr("min") > 0) {
+                ma++;
+            }
+            $this.val(val);
+            $("#DownloadOrder").attr("disabled", false);
+        }
+    }
 
     $(".set").on("input", function () {
+        ma = 0;
+        am = 0;
         var $this = $(this);
-        $(".cart, .target").attr("disabled", true).val("");
         var targets;
         if ($this.attr("id") == "SetCart") {
-            $("#SetTarget").attr("disabled", true).val();
+            $(".target, #SetTarget, #TM").attr("disabled", true).val("");
+            $("#TM").css("display", "none");
+            $("#CM").css("display", "block");
             targets = $(".cart");
         } else {
-            $("#SetCart").attr("disabled", true).val();
+            $(".cart, #SetCart").attr("disabled", true).val("");
+            $("#CM").css("display", "none");
+            $("#TM").css("display", "block");
             targets = $(".target");
         }
 
         targets.val($this.val());
-        targets.trigger('input');
-        if (!$this.val()) {
+        targets.each(function () {
+            setCart($(this));
+        });
+
+        calcPrice();
+
+        if ($this.attr("id") == "SetCart") {
+            $("#MaxCart").text(ma);
+        } else {
+            $("#MaxTarget").text(ma);
+        }
+        $(".InCart").text(am);
+
+        if (!$this.val() || $this.val() == 0) {
             $(".clear").click();
         }
 
-        var totalSets = 0;
 
     });
 
@@ -106,17 +152,39 @@ function processFile(e) {
         download("order.json", JSON.stringify(result));
     });
 
+    $('#MaxTF, #MaxCS').on('input', function () {
+        maxTF = Number($("#MaxTF").val());
+        maxCS = Number($("#MaxCS").val());
+
+        $('#Set' + type.capitalize()).trigger('input');
+
+        calcPrice();
+    });
+
     function calcPrice() {
         var cart = $("." + type);
         var totalSets = 0;
+        var totalTF = 0;
+        var totalCS = 0;
+
+        var maxTF = Number($("#MaxTF").val());
+        var maxCS = Number($("#MaxCS").val());
         for (var i = 0; i < cart.length; i++) {
             var $el = $(cart[i]);
-            totalSets += $el.val() - $el.attr("min");
+            var amount = $el.val() - $el.attr("min");
+            if (amount > 0) {
+                var TFrate = Number($el.parent().parent().children('.TFrate').text());
+                var CSrate = Number($el.parent().parent().children('.CSrate').text());
+                am++;
+                totalSets += amount;
+                totalCS += amount / CSrate;
+                totalTF += amount / TFrate;
+            }
         }
 
         $("#Sets").text(totalSets);
-        $("#TfPrice").text((totalSets / rates.TF2).toFixed(2));
-        $("#CsPrice").text((totalSets / rates.CSGO).toFixed(2));
+        $("#TfPrice").text((totalTF).toFixed(2));
+        $("#CsPrice").text((totalCS).toFixed(2));
 
     }
 }

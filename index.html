@@ -15,12 +15,22 @@
     </div>
     <div class="d-none" id="TableContainer">
         <div class="row">
-            <label for="SetCart" class="col-1">Set cart: </label>
-            <input type="number" id="SetCart" class="col-1 set">
+            <label for="MaxTF" class="col-2">Max TF rate: </label>
+            <input type="number" id="MaxTF" min="-1" class="col-1 max-rate" value="-1">
         </div>
         <div class="row">
-            <label for="SetTarget" class="col-1">Set target: </label>
-            <input type="number" id="SetTarget" class="col-1 set">
+            <label for="MaxCS" class="col-2">Max CS rate: </label>
+            <input type="number" id="MaxCS" min="-1" class="col-1 max-rate" value="-1">
+        </div>
+        <div class="row">
+            <label for="SetCart" class="col-2">Set cart: </label>
+            <input type="number" id="SetCart" min="0" class="col-1 set">
+            <p class="col" id="CM">(<span id="MaxCart">0</span>/<span class="InCart">0</span> games at max cart)</p>
+        </div>
+        <div class="row">
+            <label for="SetTarget" class="col-2">Set target: </label>
+            <input type="number" id="SetTarget" min="0" class="col-1 set">
+            <p class="col" id="TM">(<span id="MaxTarget">0</span>/<span class="InCart">0</span> games at max target)</p>
         </div>
         <div class="row">
             <button class="col-3" id="DownloadOrder" disabled>Download order</button>
@@ -52,6 +62,7 @@
     </div>
     <script src="./js/jquery.min.js"></script>
     <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/datatables.js"></script>
     <script src="./js/main.js"></script>
 </body>
 
