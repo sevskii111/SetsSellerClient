@@ -79,7 +79,7 @@ function processFile(e) {
 
         var TFrate = Number($el.parent().parent().children('.TFrate').text());
         var CSrate = Number($el.parent().parent().children('.CSrate').text());
-        if ((maxTF != "-1" && TFrate > maxTF) || (maxCS != "-1" && CSrate > maxCS)) {
+        if ((maxTF != "-1" && TFrate < maxTF) || (maxCS != "-1" && CSrate < maxCS)) {
             $el.val(0);
         } else {
             console.log(val - $this.attr("min"));
@@ -167,8 +167,6 @@ function processFile(e) {
         var totalTF = 0;
         var totalCS = 0;
 
-        var maxTF = Number($("#MaxTF").val());
-        var maxCS = Number($("#MaxCS").val());
         for (var i = 0; i < cart.length; i++) {
             var $el = $(cart[i]);
             var amount = $el.val() - $el.attr("min");
