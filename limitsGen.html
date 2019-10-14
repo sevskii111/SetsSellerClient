@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>SetsSeller client</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+    <div class="container" id="Import">
+        <p>Please put report.json here</p>
+        <input type="file" onchange="handleImportReport(this.files)">
+        <p>Please put limits.txt here</p>
+        <input type="file" onchange="handleImportLimits(this.files)">
+    </div>
+    <div class="d-none" id="TableContainer">
+        <div class="row">
+            <button class="col-3" id="DownloadLimits">Download limits</button>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Game Name</th>
+                    <th scope="col">AppID</th>
+                    <th scope="col">Available</th>
+                    <th scope="col">TF2 Rate</th>
+                    <th scope="col">CSGO Rate</th>
+                    <th scope="col">Limit</th>
+                </tr>
+            </thead>
+            <tbody id="AppidsTable">
+
+            </tbody>
+        </table>
+    </div>
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/datatables.js"></script>
+    <script>
+        var report,
+            limits;
+
+        function handleImportReport(files) {
+            var file = files[0];
+            var reader = new FileReader();
+            reader.readAsText(file);
+            $(reader).on('load', processReport);
+        }
+
+        function handleImportLimits(files) {
+            var file = files[0];
+            var reader = new FileReader();
+            reader.readAsText(file);
+            $(reader).on('load', processLimits);
+        }
+
+        function download(filename, text) {
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+
+            element.style.display = 'none';
+            document.body.appendChild(element);
+
+            element.click();
+
+            document.body.removeChild(element);
+        }
+
+        function processReport(e) {
+            report = JSON.parse(e.target.result);
+            if (report && limits) {
+                renderTable();
+            }
+        }
+
+        function parseLimits(l) {
+            const limits = l.split("\n").map(l => l.trim()
+                .split(';'));
+            let result = {};
+            for (const limit of limits) {
+                const [appId, lim] = limit;
+                result[appId] = lim;
+            }
+            return result;
+        }
+
+        function processLimits(e) {
+            limits = parseLimits(e.target.result);
+            if (report && limits) {
+                renderTable();
+            }
+        }
+
+        function renderTable() {
+            var mySets = report.mySets,
+                targetSets = report.targetSets
+            $("#Import").addClass("d-none");
+            $("#TableContainer").removeClass("d-none");
+            var mySetsKeys = Object.keys(mySets);
+            for (var i = 0; i < mySetsKeys.length; i++) {
+                $("#AppidsTable").append($(
+                    `<tr class='item'><td>${mySets[mySetsKeys[i]].name}</td><td>${mySetsKeys[i]}</td><td class="sets">${mySets[mySetsKeys[i]].sets}</td><td class='TFrate'>${mySets[mySetsKeys[i]].TFrate}</td><td class='CSrate'>${mySets[mySetsKeys[i]].CSrate}</td><td><input type="number" min="-1" data-id='${mySetsKeys[i]}' class='limit' value="${limits.hasOwnProperty(mySetsKeys[i]) ? limits[mySetsKeys[i]] : -1}"></td></tr>`
+                ));
+
+            }
+            $('.table').DataTable({
+                "paging": false,
+                "info": false,
+                "stateSave": false,
+                "searching": false,
+                "autoWidth": false,
+                "order": [
+                    [2, "desc"]
+                ]
+            });
+        }
+
+        $("#DownloadLimits").click(function () {
+            var result = "";
+            var limits = $(".limit");
+            for (var i = 0; i < limits.length; i++) {
+                var $limit = $(limits[i]);
+                result += $limit.data('id') + ";" + $limit.val() + "\r\n";
+            }
+            download("limits.txt", result);
+        });
+    </script>
+</body>
+
+</html>

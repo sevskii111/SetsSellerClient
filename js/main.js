@@ -2,7 +2,6 @@ String.prototype.capitalize = function () {
     return this.charAt(0).toUpperCase() + this.slice(1);
 }
 
-
 function handleImport(files) {
     var file = files[0];
     var reader = new FileReader();
