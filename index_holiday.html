@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>SetsSeller client</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/style.css">
+    <script>var foil = false</script>
+</head>
+
+<body>
+    <div class="container" id="Import">
+        <p>Please put report.json here</p>
+        <input type="file" id="ImportFile" onchange="handleImport(this.files)">
+    </div>
+    <div class="d-none" id="TableContainer">
+        <div class="row">
+            <label for="SetCart" class="col-2">Set cart: </label>
+            <input type="number" id="SetCart" min="0" class="col-1 set">
+            <p class="col" id="CM">(<span id="MaxCart">0</span>/<span class="InCart">0</span> cards at max cart)</p>
+        </div>
+        <div class="row">
+            <label for="SetTarget" class="col-2">Set target: </label>
+            <input type="number" id="SetTarget" min="0" class="col-1 set">
+            <p class="col" id="TM">(<span id="MaxTarget">0</span>/<span class="InCart">0</span> cards at max target)</p>
+        </div>
+        <div class="row">
+            <button class="col-3" id="DownloadOrder" disabled>Download order</button>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Card name</th>
+                    <th scope="col">Available</th>
+                    <th scope="col">Cart(<span class="clear" id="ClearCart">X</span>)</th>
+                    <th scope="col">You have</th>
+                    <th scope="col">Target amount(<span class="clear" id="ClearTarget">X</span>)</th>
+                </tr>
+            </thead>
+            <tbody id="AppidsTable">
+
+            </tbody>
+        </table>
+    </div>
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/datatables.js"></script>
+    <script src="./js/main_holiday.js"></script>
+</body>
+
+</html>
