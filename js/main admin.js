@@ -1,4 +1,4 @@
-String.prototype.capitalize = function() {
+String.prototype.capitalize = function () {
   return this.charAt(0).toUpperCase() + this.slice(1);
 };
 
@@ -36,7 +36,11 @@ function processFile(e) {
   $("#TableContainer").removeClass("d-none");
   var myProfilesKeys = Object.keys(myProfiles);
   for (const profile of myProfilesKeys) {
-    $("thead tr").append($(`<th scope="col">${profile}</th>`));
+    $("thead tr").append(
+      $(
+        `<th scope="col border-left border-left border-dark border-top-0">${profile}</th>`
+      )
+    );
   }
   var mySetsKeys = Object.keys(mySets);
 
@@ -64,11 +68,13 @@ function processFile(e) {
             mySetsKeys[i]
           }" placeholder="0" min="${
             targetSets[mySetsKeys[i]] ? targetSets[mySetsKeys[i]].sets : 0
-          }" max="${mySets[mySetsKeys[i]].sets +
-            (targetSets[mySetsKeys[i]]
-              ? targetSets[mySetsKeys[i]].sets
-              : 0)}"></td>${myProfilesKeys.map(profile => {
-            return `<td>${myProfiles[profile][mySetsKeys[i]] || 0}</td>`;
+          }" max="${
+            mySets[mySetsKeys[i]].sets +
+            (targetSets[mySetsKeys[i]] ? targetSets[mySetsKeys[i]].sets : 0)
+          }"></td>${myProfilesKeys.map((profile) => {
+            return `<td class="border-left border-dark border-top-0">${
+              myProfiles[profile][mySetsKeys[i]] || 0
+            }</td>`;
           })}</tr>`
         )
       );
@@ -81,10 +87,16 @@ function processFile(e) {
     stateSave: false,
     searching: false,
     autoWidth: false,
-    order: [[2, "desc"]]
+    order: [[2, "desc"]],
+    columnDefs: [
+      {
+        orderSequence: ["desc", "asc"],
+        targets: [2, 5, 6, 8, ...Object.keys(myProfiles).map((p, i) => i + 10)],
+      },
+    ],
   });
 
-  $(".cart, .target").on("input", function(e) {
+  $(".cart, .target").on("input", function (e) {
     setCart($(this));
     calcPrice();
   });
@@ -110,20 +122,8 @@ function processFile(e) {
     val = Math.min(max, val);
     val = Math.max(min, val);
 
-    var TFrate = Number(
-      $el
-        .parent()
-        .parent()
-        .children(".TFrate")
-        .text()
-    );
-    var CSrate = Number(
-      $el
-        .parent()
-        .parent()
-        .children(".CSrate")
-        .text()
-    );
+    var TFrate = Number($el.parent().parent().children(".TFrate").text());
+    var CSrate = Number($el.parent().parent().children(".CSrate").text());
     if (
       (maxTF != "-1" && TFrate < maxTF) ||
       (maxCS != "-1" && CSrate < maxCS)
@@ -139,29 +139,25 @@ function processFile(e) {
     }
   }
 
-  $(".set").on("input", function() {
+  $(".set").on("input", function () {
     ma = 0;
     am = 0;
     var $this = $(this);
     var targets;
     if ($this.attr("id") == "SetCart") {
-      $(".target, #SetTarget, #TM")
-        .attr("disabled", true)
-        .val("");
+      $(".target, #SetTarget, #TM").attr("disabled", true).val("");
       $("#TM").css("display", "none");
       $("#CM").css("display", "block");
       targets = $(".cart");
     } else {
-      $(".cart, #SetCart")
-        .attr("disabled", true)
-        .val("");
+      $(".cart, #SetCart").attr("disabled", true).val("");
       $("#CM").css("display", "none");
       $("#TM").css("display", "block");
       targets = $(".target");
     }
 
     targets.val($this.val());
-    targets.each(function() {
+    targets.each(function () {
       setCart($(this));
     });
 
@@ -179,17 +175,15 @@ function processFile(e) {
     }
   });
 
-  $(".clear").click(function() {
-    $(".cart, .target, .set")
-      .attr("disabled", false)
-      .val("");
+  $(".clear").click(function () {
+    $(".cart, .target, .set").attr("disabled", false).val("");
     $("#DownloadOrder").attr("disabled", true);
   });
 
-  $("#DownloadOrder").click(function() {
+  $("#DownloadOrder").click(function () {
     var result = {
       type: type,
-      order: {}
+      order: {},
     };
     var cart = $("." + type);
     for (var i = 0; i < cart.length; i++) {
@@ -202,7 +196,7 @@ function processFile(e) {
     download("order.json", JSON.stringify(result));
   });
 
-  $("#MaxTF, #MaxCS").on("input", function() {
+  $("#MaxTF, #MaxCS").on("input", function () {
     maxTF = Number($("#MaxTF").val());
     maxCS = Number($("#MaxCS").val());
 
@@ -221,20 +215,8 @@ function processFile(e) {
       var $el = $(cart[i]);
       var amount = $el.val() - $el.attr("min");
       if (amount > 0) {
-        var TFrate = Number(
-          $el
-            .parent()
-            .parent()
-            .children(".TFrate")
-            .text()
-        );
-        var CSrate = Number(
-          $el
-            .parent()
-            .parent()
-            .children(".CSrate")
-            .text()
-        );
+        var TFrate = Number($el.parent().parent().children(".TFrate").text());
+        var CSrate = Number($el.parent().parent().children(".CSrate").text());
         am++;
         totalSets += amount;
         totalCS += amount / CSrate;
