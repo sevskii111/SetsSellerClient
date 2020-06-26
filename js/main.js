@@ -110,9 +110,11 @@ function processFile(e) {
 
     var TFrate = Number($el.parent().parent().children(".TFrate").text());
     var CSrate = Number($el.parent().parent().children(".CSrate").text());
+    var sets = Number($el.parent().parent().children(".sets").text());
     if (
       (maxTF != "-1" && TFrate < maxTF) ||
-      (maxCS != "-1" && CSrate < maxCS)
+      (maxCS != "-1" && CSrate < maxCS) ||
+      sets < parseInt($("#MinSets").val())
     ) {
       $el.val(0);
     } else {
@@ -182,7 +184,11 @@ function processFile(e) {
     download("order.json", JSON.stringify(result));
   });
 
-  $("#MaxTF, #MaxCS").on("input", function () {
+  $("#MinSets").on("input", function () {
+    $("#Set" + type.capitalize()).trigger("input");
+  });
+
+  $("#MaxTF, #MaxCS, #MinSets").on("input", function () {
     maxTF = Number($("#MaxTF").val());
     maxCS = Number($("#MaxCS").val());
 
