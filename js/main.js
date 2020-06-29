@@ -103,7 +103,7 @@ function processFile(e) {
       type = "target";
     }
     let val = $this.val();
-    var max = $this.attr("max");
+    var max = $this.attr("max") - parseInt($("#MinSets").val());
     var min = $this.attr("min");
     val = Math.min(max, val);
     val = Math.max(min, val);
@@ -113,12 +113,10 @@ function processFile(e) {
     var sets = Number($el.parent().parent().children(".sets").text());
     if (
       (maxTF != "-1" && TFrate < maxTF) ||
-      (maxCS != "-1" && CSrate < maxCS) ||
-      sets < parseInt($("#MinSets").val())
+      (maxCS != "-1" && CSrate < maxCS)
     ) {
       $el.val(0);
     } else {
-      console.log(val - $this.attr("min"));
       if ($this.val() == val && val - $this.attr("min") > 0) {
         ma++;
       }
